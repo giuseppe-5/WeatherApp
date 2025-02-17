@@ -1,33 +1,57 @@
-let api_key = "fbe6994aefc3b1f3ffbff6b0bc1d75e7"
+let api_key = "fbe6994aefc3b1f3ffbff6b0bc1d75e7";
 
 function getWeather() {
-    const xhttpr = new XMLHttpRequest();
-    xhttpr.open('GET', `https://api.openweathermap.org/data/2.5/weather?q=London&appid=${api_key}&units=metric`, true);
+    let cityInput = document.getElementById("cityInput");
+    let city = cityInput.value.trim();
 
-    xhttpr.send();
+    if (!city) {
+        alert("Bitte gib eine Stadt ein.");
+        return;
+    }
+
+    const xhttpr = new XMLHttpRequest();
+    xhttpr.open('GET', `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${api_key}&units=metric`, true);
 
     xhttpr.onload = () => {
         if (xhttpr.status === 200) {
             const response = JSON.parse(xhttpr.response);
-            // Process the response data here
-            // Wetterdaten extrahieren
-            const temperature = response.main.temp;  // Temperatur
-            const weatherDescription = response.weather[0].description;  // Wetterbeschreibung
-            const humidity = response.main.humidity;  // Luftfeuchtigkeit
-            const windSpeed = response.wind.speed;  // Windgeschwindigkeit
 
-            // Ausgabe der Daten
-            console.log(`Temperatur: ${temperature}°C`);
-            console.log(`Wetter: ${weatherDescription}`);
-            console.log(`Luftfeuchtigkeit: ${humidity}%`);
-            console.log(`Windgeschwindigkeit: ${windSpeed} m/s`);
+            if (response.cod !== 200) {
+                alert('Stadt nicht gefunden!');
+                return;
+            }
+
+            const temperature = response.main.temp;
+            const weatherDescription = response.weather[0].description;
+            const windSpeed = response.wind.speed;
+            const iconCode = response.weather[0].icon;
+
+            const roundedTemperature = Math.round(temperature * 10) / 10;
+
+            let tempDiv = document.getElementById("temp-div");
+            tempDiv.innerHTML = `<p class="temp">${roundedTemperature}°C</p>`;
+
+            let weatherInfo = document.getElementById("weather-info");
+            weatherInfo.innerHTML = `
+                <p class="description">${city}</p>
+                <p class="description">${weatherDescription}</p>`;
+
+            let iconImg = document.getElementById("weather-icon");
+            iconImg.src = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+            iconImg.alt = weatherDescription;
+            iconImg.style.display = "block";
         } else {
-            // Handle error
             console.error(`Fehler: ${xhttpr.statusText}`);
             alert('Es gab ein Problem beim Abrufen der Wetterdaten.');
         }
     };
 
+    xhttpr.send();
 }
 
-getWeather();
+document.getElementById("cityInput").addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+        // Wenn Enter gedrückt wird, den Click-Event des Buttons auslösen
+        document.querySelector("button").click();
+    }
+});
