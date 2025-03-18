@@ -1,4 +1,4 @@
-let api_key = "fbe6994aefc3b1f3ffbff6b0bc1d75e7";
+let api_key = "";
 
 function getWeather() {
     let cityInput = document.getElementById("cityInput");
